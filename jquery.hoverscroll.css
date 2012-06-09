@@ -2,8 +2,8 @@
  * HoverScroll Style Sheet
  *
  * @author RasCarlito <carl.ogren@gmail.com>
- * @version 0.3.0
- * @revision 8
+ * @version 0.2.4
+ * @revision 21
  */
 
 /* Main container */
@@ -35,6 +35,9 @@ div.hoverscroll ul.list li.item {
 }
 div.hoverscroll.horizontal ul.list li.item {
 	float:left;
+}
+div.hoverscroll.horizontal.rtl ul.list li.item {
+	float: right;
 }
 
 

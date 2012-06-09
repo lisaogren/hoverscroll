@@ -4,8 +4,8 @@
  * Make an unordered list scrollable by hovering the mouse over it
  *
  * @author RasCarlito <carl.ogren@gmail.com>
- * @version 0.2.3
- * @revision 18
+ * @version 0.2.4
+ * @revision 21
  *
  * 
  *
@@ -15,34 +15,39 @@
  * beer (in)to the author(s).
  * 
  *
- * Released: 27-06-2009 6:00pm
+ * Released: 09-12-2010 11:31pm
  *
  * Changelog
  * ----------------------------------------------------
- * 0.2.3    Added fixed arrows option
  *
- * 0.2.2	Bug fixes
- *      	- Backward compatibility with jQuery 1.1.x
- *      	- Added test file to the archive
- *      	- Bug fix: The right arrow appeared when it wasn't necessary (thanks to <admin at unix dot am>)
- * 
- * 0.2.1	Bug fixes
- *      	- Backward compatibility with jQuery 1.2.x (thanks to Andy Mull for compatibility with jQuery >= 1.2.4)
- *      	- Added information to the debug log
- * 
- * 0.2.0	Added some new features
- *      	- Direction indicator arrows
- *      	- Permanent override of default parameters
- * 
- * 0.1.1	Minor bug fix
- *      	- Hover zones did not cover the complete container
+ * 0.2.4    - Added "Right to Left" option, only works with horizontal lists
+ *          - Optimization of arrows opacity control (Thanks to Josef Körner)
  *
- *      	note: The css file has not changed therefore it is still versioned 0.1.0
+ * 0.2.3    - Added fixed arrows option
+ *          - Binded startMoving and stopMoving functions to the HoverScrolls HTML object for external access
  *
- * 0.1.0	First release of the plugin. Supports:
- *      	- Horizontal and vertical lists
- *      	- Width and height control
- *      	- Debug log (doesn't show useful information for the moment)
+ * 0.2.2    Bug fixes
+ *          - Backward compatibility with jQuery 1.1.x
+ *          - Added test file to the archive
+ *          - Bug fix: The right arrow appeared when it wasn't necessary (thanks to <admin at unix dot am>)
+ *        
+ * 0.2.1    Bug fixes
+ *          - Backward compatibility with jQuery 1.2.x (thanks to Andy Mull for compatibility with jQuery >= 1.2.4)
+ *          - Added information to the debug log
+ * 
+ * 0.2.0    Added some new features
+ *          - Direction indicator arrows
+ *          - Permanent override of default parameters
+ * 
+ * 0.1.1    Minor bug fix
+ *          - Hover zones did not cover the complete container
+ *
+ *          note: The css file has not changed therefore it is still versioned 0.1.0
+ *
+ * 0.1.0    First release of the plugin. Supports:
+ *          - Horizontal and vertical lists
+ *          - Width and height control
+ *          - Debug log (doesn't show useful information for the moment)
  */
  
 (function($) {
@@ -90,7 +95,8 @@ $.fn.hoverscroll = function(params) {
 		var listctnr = $this.parent();
 		
 		// wrap listcontainer with a div.hoverscroll
-		listctnr.wrap('<div class="ui-widget-content hoverscroll"></div>');
+		listctnr.wrap('<div class="ui-widget-content hoverscroll' +
+			(params.rtl && !params.vertical ? " rtl" : "") + '"></div>');
 		//listctnr.wrap('<div class="hoverscroll"></div>');
 		
 		// store hoverscroll container
@@ -291,22 +297,35 @@ $.fn.hoverscroll = function(params) {
 				maxScroll = listctnr[0].scrollHeight - listctnr.height();
 				scroll = listctnr[0].scrollTop;
 			}
-			
-			var opacity = (scroll / maxScroll);
 			var limit = params.arrowsOpacity;
 			
-			if (isNaN(opacity)) {opacity = 0;}
-			
+            // Optimization of opacity control by Josef Körner
+            // Initialize opacity; keep it between its extremas (0 and limit) we don't need to check limits after init
+			var opacity = (scroll / maxScroll) * limit;
+            
+   		    if (opacity > limit) { opacity = limit; }
+			if (isNaN(opacity)) { opacity = 0; }
+            
 			// Check if the arrows are needed
 			// Thanks to <admin at unix dot am> for fixing the bug that displayed the right arrow when it was not needed
 			var done = false;
-			if (opacity <= 0) {$('div.arrow.left, div.arrow.top', ctnr).hide();done = true;}
-			if (opacity >= limit || maxScroll <= 0) {$('div.arrow.right, div.arrow.bottom', ctnr).hide();done = true;}
-			
+			if (opacity <= 0) {
+                $('div.arrow.left, div.arrow.top', ctnr).hide();
+                if(maxScroll > 0) {
+                    $('div.arrow.right, div.arrow.bottom', ctnr).show().css('opacity', limit);
+                }
+                done = true;
+            }
+			if (opacity >= limit || maxScroll <= 0) {
+           	    $('div.arrow.right, div.arrow.bottom', ctnr).hide();
+                done = true;
+            }
+
 			if (!done) {
-				$('div.arrow.left, div.arrow.top', ctnr).show().css('opacity', (opacity > limit ? limit : opacity));
-				$('div.arrow.right, div.arrow.bottom', ctnr).show().css('opacity', (1 - opacity > limit ? limit : 1 - opacity));
+				$('div.arrow.left, div.arrow.top', ctnr).show().css('opacity', opacity);
+				$('div.arrow.right, div.arrow.bottom', ctnr).show().css('opacity', (limit - opacity));
 			}
+            // End of optimization
 		}
 		
 		
@@ -367,6 +386,11 @@ $.fn.hoverscroll = function(params) {
 			listctnr[0][scrollSide] += ctnr[0].direction * ctnr[0].speed;
 			ctnr[0].timer = setTimeout(function() {move();}, 50);
 		}
+
+		// Initialize "right to left" option if specified
+		if (params.rtl && !params.vertical) {
+			listctnr[0].scrollLeft = listctnr[0].scrollWidth - listctnr.width();
+		}
 		
 		// Bind actions to the hoverscroll container
 		ctnr
@@ -376,6 +400,11 @@ $.fn.hoverscroll = function(params) {
 		// jQuery 1.2.x backward compatibility, thanks to Andy Mull!
 		// replaced .mouseleave(...) with .bind('mouseleave', ...)
 		.bind('mouseleave', function() {stopMoving();});
+
+        // Bind the startMoving and stopMoving functions
+        // to the HTML object for external access
+        this.startMoving = startMoving;
+        this.stopMoving = stopMoving;
 		
 		if (params.arrows && !params.fixedArrows) {
 			// Initialise arrow opacity
@@ -420,6 +449,7 @@ $.fn.hoverscroll.params = {
 	arrows:		true,       // Display arrows to the left and top or the top and bottom
 	arrowsOpacity:	0.7,    // Maximum opacity of the arrows if fixedArrows
     fixedArrows: false,     // Fix the displayed arrows to the side of the list
+	rtl:		false,		// Set display mode to "Right to Left"
 	debug:		false       // Display some debugging information in firebug console
 };
 
