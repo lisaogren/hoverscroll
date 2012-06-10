@@ -26,9 +26,17 @@
 	<script type="text/javascript">
 	
 	$(document).ready(function() {
+        // Creating hoverscroll with fixed arrows
 		$('#my-list').hoverscroll({
-            fixedArrows: true
+            fixedArrows: true,
+            rtl: true
         });
+        // Starting the movement automatically at loading
+        // @param direction: right/bottom = 1, left/top = -1
+        // @param speed: Speed of the animation (scrollPosition += direction * speed)
+        var direction = -1,
+            speed = 3;
+        $("#my-list")[0].startMoving(direction, speed);
 	});
 	
 	</script>
