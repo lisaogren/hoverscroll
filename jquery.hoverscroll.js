@@ -4,7 +4,7 @@
  * Make an unordered list scrollable by hovering the mouse over it
  *
  * @author RasCarlito <carl.ogren@gmail.com>
- * @version 0.2.4
+ * @version 0.2.5
  * @revision 21
  *
  * 
@@ -15,10 +15,12 @@
  * beer (in)to the author(s).
  * 
  *
- * Released: 09-12-2010 11:31pm
+ * Released: 03-08-2012 02:30am
  *
  * Changelog
  * ----------------------------------------------------
+ *
+ * 0.2.5	- Added 'create' callback that is executed once for each initialized hoverscroll element
  *
  * 0.2.4    - Added "Right to Left" option, only works with horizontal lists
  *          - Optimization of arrows opacity control (Thanks to Josef Körner)
@@ -75,6 +77,12 @@ $.fn.hoverscroll = function(params) {
 	// Loop through all the elements
 	this.each(function() {
 		var $this = $(this);
+
+		// prevent hoverscroll from being initialized several times
+		if (this.__hsInitDone) {
+			$.log('[HoverScroll] Init prevented because element is already a hoverscroll');
+			return;
+		}
 		
 		if (params.debug) {
 			$.log('[HoverScroll] Trying to create hoverscroll on element ' + this.tagName + '#' + this.id);
@@ -414,6 +422,12 @@ $.fn.hoverscroll = function(params) {
 			// Hide arrows
 			$('.arrowleft, .arrowright, .arrowtop, .arrowbottom', ctnr).hide();
 		}
+
+		this.__hsInitDone = true;
+
+		if ($.isFunction(params.create)) {
+			params.create.call(this);
+		}
 	});
 	
 	return this;
@@ -450,7 +464,9 @@ $.fn.hoverscroll.params = {
 	arrowsOpacity:	0.7,    // Maximum opacity of the arrows if fixedArrows
     fixedArrows: false,     // Fix the displayed arrows to the side of the list
 	rtl:		false,		// Set display mode to "Right to Left"
-	debug:		false       // Display some debugging information in firebug console
+	debug:		false,       // Display some debugging information in firebug console
+
+	create: function() {}
 };
 
 
