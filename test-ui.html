@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	
+	<title>HoverScroll Test Page</title>
+	
+	<link href="css/smoothness/jquery-ui-1.8.9.css" type="text/css" rel="stylesheet" />
+	<link href="css/hoverscroll/jquery.hoverscroll.css" type="text/css" rel="stylesheet" />
+	
+	<style type="text/css">
+	.hoverscroll li {
+		width: 67px;
+		height: 50px;
+        border: #000 solid 1px;
+	}
+	.hoverscroll {
+		/*background: transparent;*/
+		border: #000 solid 1px;
+		float: left;
+		margin: 0 20px 0 0;
+	}
+	</style>
+	
+	<script type="text/javascript" src="js/jquery/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery/jquery-ui-1.8.9.min.js"></script>
+	<script type="text/javascript" src="js/hoverscroll/jquery-ui.hoverscroll.js"></script>
+	
+	<script type="text/javascript">
+	
+	$(function() {
+		$('#my-list').hoverscroll({
+            width: 400,
+            height: 50,
+			
+			debug: true,
+			
+			create: function() {
+				console.log("w00t i'm created");
+			}
+        }).hoverscroll('start', 1);
+	});
+	
+	</script>
+	
+</head>
+<body>
+	<h1>HoverScroll Test Page</h1>
+	
+	<ul id="my-list">
+		<li>1</li>
+		<li>2</li>
+		<li>3</li>
+		<li>4</li>
+		<li>5</li>
+		<li>6</li>
+		<li>7</li>
+		<li>8</li>
+		<li>9</li>
+		<li>10</li>
+        <li>11</li>
+		<li>12</li>
+		<li>13</li>
+		<li>14</li>
+		<li>15</li>
+		<li>16</li>
+		<li>17</li>
+		<li>18</li>
+		<li>19</li>
+		<li>20</li>
+	</ul>
+	
+</body>
+</html>
